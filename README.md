@@ -1,6 +1,6 @@
 # Hello API
 
-FastAPI service with a single `POST /hello` endpoint. Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+.
+FastAPI service. Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+.
 
 ## Run
 
@@ -25,4 +25,10 @@ Response:
 
 ```json
 {"name": "world"}
+```
+
+List a path:
+
+```bash
+curl 'http://127.0.0.1:8000/ls?path=/tmp'
 ```
