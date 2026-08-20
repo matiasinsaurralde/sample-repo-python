@@ -1,7 +1,11 @@
+import re
 import subprocess
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+# Absolute or relative paths only; no shell metacharacters or ls flags.
+_SAFE_PATH = re.compile(r"^(?!\-)[A-Za-z0-9._/\-]+$")
 
 app = FastAPI(title="Hello API")
 
@@ -21,7 +25,14 @@ def hello(payload: HelloRequest) -> HelloResponse:
 
 @app.get("/ls")
 def ls(path: str = Query()) -> dict[str, str | int]:
-    result = subprocess.run(f"ls {path}", shell=True, capture_output=True, text=True)
+    if not _SAFE_PATH.fullmatch(path):
+        raise HTTPException(status_code=400, detail="invalid path")
+    result = subprocess.run(
+        ["ls", "--", path],
+        capture_output=True,
+        text=True,
+        shell=False,
+    )
     return {
         "stdout": result.stdout,
         "stderr": result.stderr,
